@@ -73,15 +73,17 @@ export class Row implements AfterViewInit {
           // Currently showing front side, put new text on back side
           state.backText = newChar;
         }
-        
+
         state.isAnimating = true;
-        
+
         // Trigger change detection to ensure the new text is set before flip
         this.cdr.detectChanges();
-        
-        // Use requestAnimationFrame to ensure the DOM is updated before flipping
+
+        // Use requestAnimationFrame with a staggered delay based on character index
         requestAnimationFrame(() => {
-          this.triggerFlip(index);
+          setTimeout(() => {
+            this.triggerFlip(index);
+          }, index * 45); // 10ms delay for each subsequent character
         });
       }
     });

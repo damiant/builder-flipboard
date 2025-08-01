@@ -1,8 +1,9 @@
+<app-row text="HELLO"></app-row>
 <div class="flip-grid">
   @for (row of rows; track $index) {
     <div class="grid-row">
       @for (col of columns; track $index) {
-        <app-flip [width]="20" [height]="20" backText="B" frontText="A"></app-flip>
+        <app-flip [width]="30" [height]="30" backText="B" frontText=" "></app-flip>
       }
     </div>
   }

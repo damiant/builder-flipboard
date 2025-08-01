@@ -1,10 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Flip } from './flip/flip';
+import { Row } from './row/row';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Flip],
+  imports: [RouterOutlet, Flip, Row],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

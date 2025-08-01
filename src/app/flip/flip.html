@@ -2,7 +2,7 @@
     <div class="flipper" [class.flip]="isFlipped()">
         <div class="front-card card" (click)="toggleFlip()">
             <div class="card-image">
-                <div class="header-front"></div>
+                <div class="header-front"><div class="edge"></div></div>                
                 @if (frontText()) {
                     <span class="card-title">{{ frontText() }}</span>
                 }
@@ -10,7 +10,7 @@
         </div>
         <div class="back-card card" (click)="toggleFlip()">
             <div class="card-image">
-                <div class="header-back"></div>
+                <div class="header-back"><div class="edge"></div></div>
                 @if (backText()) {
                     <span class="card-title">{{ backText() }}</span>
                 }

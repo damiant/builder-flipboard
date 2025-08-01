@@ -16,7 +16,9 @@ interface CharacterState {
 })
 export class Row implements AfterViewInit {
   readonly text = input<string>('');
-  
+  readonly length = input<number | undefined>(undefined); // total length with padding
+  readonly padLeft = input<boolean>(false); // true for left padding, false for right padding
+
   @ViewChildren(Flip) flipComponents!: QueryList<Flip>;
   
   protected characterStates: CharacterState[] = [];
@@ -24,10 +26,10 @@ export class Row implements AfterViewInit {
   
   constructor(private cdr: ChangeDetectorRef) {
     effect(() => {
-      const newText = this.text();
-      if (newText !== this.previousText) {
-        this.handleTextChange(newText);
-        this.previousText = newText;
+      const newPaddedText = this.getPaddedText();
+      if (newPaddedText !== this.previousText) {
+        this.handleTextChange(newPaddedText);
+        this.previousText = newPaddedText;
       }
     });
   }
@@ -37,7 +39,7 @@ export class Row implements AfterViewInit {
   }
   
   private initializeCharacterStates() {
-    const chars = this.text().split('');
+    const chars = this.getPaddedText().split('');
     this.characterStates = chars.map(char => ({
       frontText: char,
       backText: char,
@@ -83,7 +85,7 @@ export class Row implements AfterViewInit {
         requestAnimationFrame(() => {
           setTimeout(() => {
             this.triggerFlip(index);
-          }, index * 45); // 10ms delay for each subsequent character
+          }, index * 10); // 10ms delay for each subsequent character
         });
       }
     });
@@ -124,6 +126,20 @@ export class Row implements AfterViewInit {
   }
   
   protected get characters(): string[] {
-    return this.text().split('');
+    return this.getPaddedText().split('');
+  }
+
+  private getPaddedText(): string {
+    const originalText = this.text();
+    const targetLength = this.length();
+
+    if (targetLength === undefined || originalText.length >= targetLength) {
+      return originalText;
+    }
+
+    const paddingLength = targetLength - originalText.length;
+    const padding = ' '.repeat(paddingLength);
+
+    return this.padLeft() ? padding + originalText : originalText + padding;
   }
 }

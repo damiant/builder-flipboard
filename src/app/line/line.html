@@ -1,0 +1,17 @@
+<div class="line-container">
+  <div class="field-row">
+    <app-row [length]=5 [text]="data().time"></app-row>
+  </div>
+  
+  <div class="field-row">
+    <app-row [length]="20" [text]="data().title"></app-row>
+  </div>
+  
+  <div class="field-row">
+    <app-row [length]="20" [text]="data().location"></app-row>
+  </div>
+  
+  <div class="field-row">
+    <app-row [length]="6" [padLeft]="true" [text]="data().directions"></app-row>
+  </div>
+</div>

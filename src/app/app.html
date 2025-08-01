@@ -1,11 +1,9 @@
 <app-row [text]="rowText()"></app-row>
-<div class="flip-grid">
-  @for (row of rows; track $index) {
-    <div class="grid-row">
-      @for (col of columns; track $index) {
-        <app-flip [width]="30" [height]="30" backText="B" frontText=" "></app-flip>
-      }
-    </div>
+
+<div class="grid-container">
+  @for (item of grid; track $index) {
+    <app-line [data]="item"></app-line>
   }
 </div>
+
 <router-outlet />

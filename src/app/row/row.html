@@ -1,5 +1,10 @@
 <div class="row-container">
   @for (char of characters; track $index) {
-    <app-flip [width]="20" [height]="20" [frontText]="char"></app-flip>
+    <app-flip 
+      [width]="40" 
+      [height]="40" 
+      [frontText]="getCharacterData($index).frontText"
+      [backText]="getCharacterData($index).backText">
+    </app-flip>
   }
 </div>

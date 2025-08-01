@@ -1,4 +1,4 @@
-<app-row text="HELLO"></app-row>
+<app-row [text]="rowText()"></app-row>
 <div class="flip-grid">
   @for (row of rows; track $index) {
     <div class="grid-row">

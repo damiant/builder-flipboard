@@ -2,6 +2,7 @@ import { Component, signal, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Row } from './row/row';
 import { Line, LineData } from './line/line';
+import { mockLineData } from './data/mock-line-data';
 
 @Component({
   selector: 'app-root',
@@ -24,30 +25,16 @@ export class App implements OnInit, OnDestroy {
   });
 
   public grid: LineData[] = [
-    {
-      time: '06:00',
-      title: 'Morning Yoga',
-      location: 'Yoga Camp',
-      directions: '4:15&A',
-    },
-    {
-      time: '07:00',
-      title: 'Breakfast',
-      location: 'Cafeteria',
-      directions: '5&B',
-    },
-    {
-      time: '08:00',
-      title: 'Team Meeting',
-      location: 'Conference Room',
-      directions: '2:30&A',
-    },
-    {
-      time: '09:00',
-      title: 'Project Work',
-      location: 'Workstation',
-      directions: '3:30&C',
-    }
+    { time: '', title: '', location: '', directions: '' },
+    { time: '', title: '', location: '', directions: '' },
+    { time: '', title: '', location: '', directions: '' },
+    { time: '', title: '', location: '', directions: '' },
+    { time: '', title: '', location: '', directions: '' },
+    { time: '', title: '', location: '', directions: '' },
+    { time: '', title: '', location: '', directions: '' },
+    { time: '', title: '', location: '', directions: '' },
+    { time: '', title: '', location: '', directions: '' },
+    { time: '', title: '', location: '', directions: '' }
   ];
   
   ngOnInit() {
@@ -56,6 +43,7 @@ export class App implements OnInit, OnDestroy {
       this.currentTextIndex =
         (this.currentTextIndex + 1) % this.textOptions.length;
       this.rowText.set(this.textOptions[this.currentTextIndex]);
+      this.loadGridFromMockData(this.currentTextIndex * this.grid.length);
     }, 5000);
   }
 
@@ -64,5 +52,18 @@ export class App implements OnInit, OnDestroy {
     if (this.intervalId) {
       window.clearInterval(this.intervalId);
     }
+  }
+
+  /**
+   * Copies 10 elements from mockLineData starting at the specified index into the grid
+   * @param startIndex - The index to start copying from (defaults to 0)
+   */
+  public loadGridFromMockData(startIndex: number = 0): void {
+    // Ensure we don't go out of bounds
+    const maxStartIndex = Math.max(0, mockLineData.length - 10);
+    const safeStartIndex = Math.min(startIndex, maxStartIndex);
+
+    // Copy 10 elements starting from the safe index
+    this.grid = mockLineData.slice(safeStartIndex, safeStartIndex + 10);
   }
 }

@@ -1,6 +1,5 @@
-<app-row [text]="rowText()"></app-row>
-
 <div class="grid-container">
+<h1>Departures</h1>
   @for (item of grid; track $index) {
     <app-line [data]="item"></app-line>
   }

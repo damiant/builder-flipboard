@@ -1,23 +1,19 @@
-<div class="container">
-    <div class="row">
-        <div class="flipper col-md-6 col-md-offset-3" [class.flip]="isFlipped()">
-            <div class="front-card card" (click)="toggleFlip()">
-                <div class="card-image">
-                    <div class="header-front"></div>
-                    <span class="card-title">Front Card</span>
-                </div>
-                <div class="card-content">
-                    <p>Front Content - (Click to Flip)</p>
-                </div>
+<div class="flip-container" [style.width.px]="width()" [style.height.px]="height()">
+    <div class="flipper" [class.flip]="isFlipped()">
+        <div class="front-card card" (click)="toggleFlip()">
+            <div class="card-image">
+                <div class="header-front"></div>
+                @if (frontText()) {
+                    <span class="card-title">{{ frontText() }}</span>
+                }
             </div>
-            <div class="back-card card" (click)="toggleFlip()">
-                <div class="card-image">
-                    <div class="header-back"></div>
-                    <span class="card-title">Back Card</span>
-                </div>
-                <div class="card-content">
-                    <p>Back Content - (Click to Flip)</p>
-                </div>
+        </div>
+        <div class="back-card card" (click)="toggleFlip()">
+            <div class="card-image">
+                <div class="header-back"></div>
+                @if (backText()) {
+                    <span class="card-title">{{ backText() }}</span>
+                }
             </div>
         </div>
     </div>

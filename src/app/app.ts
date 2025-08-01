@@ -10,4 +10,6 @@ import { Flip } from './flip/flip';
 })
 export class App {
   protected readonly title = signal('builder-flipboard');
+  protected readonly rows = Array.from({ length: 5 }, (_, i) => i); // 5 rows
+  protected readonly columns = Array.from({ length: 20 }, (_, i) => i); // 20 columns
 }

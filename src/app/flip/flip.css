@@ -1,32 +1,20 @@
-.container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  padding: 20px;
-}
-
-.row {
-  width: 100%;
-  max-width: 600px;
+.flip-container {
+  position: relative;
+  cursor: pointer;
+  display: inline-block;
 }
 
 .flipper {
   position: relative;
   width: 100%;
-  height: 300px;
-  cursor: pointer;
-}
-
-.flipper {
+  height: 100%;
   perspective: 600px;
   -webkit-perspective: 600px;
   -moz-perspective: 600px;
-
-  -webkit-transform-origin: 100% center;
-  -moz-transform-origin: 100% center;
-  -ms-transform-origin: 100% center;
-  transform-origin: 100% center;
+  -webkit-transform-origin: 50% 50%;
+  -moz-transform-origin: 50% 50%;
+  -ms-transform-origin: 50% 50%;
+  transform-origin: 50% 50%;
 }
 
 .front-card,
@@ -34,16 +22,13 @@
   -webkit-transform-style: preserve-3d;
   -moz-transform-style: preserve-3d;
   transform-style: preserve-3d;
-
   -webkit-backface-visibility: hidden;
   -moz-backface-visibility: hidden;
   backface-visibility: hidden;
-
   -o-transition: transform 0.6s ease-in-out;
   -moz-transition: transform 0.6s ease-in-out;
   -webkit-transition: transform 0.6s ease-in-out;
   transition: transform 0.6s ease-in-out;
-
   position: absolute;
   top: 0;
   left: 0;
@@ -57,6 +42,7 @@
   -moz-transform: rotateX(0deg);
   transform: rotateX(0deg);
 }
+
 .flipper.flip .front-card {
   -webkit-transform: rotateX(180deg);
   -moz-transform: rotateX(180deg);
@@ -75,21 +61,19 @@
   transform: rotateX(0deg);
 }
 
-/*Styling*/
 .header-front {
-  background: SteelBlue;
+  background: black;
 }
 
 .header-back {
-  background: YellowGreen;
+  background: black;
 }
 
 .card {
-  margin-top: 10px;
   box-sizing: border-box;
   border-radius: 2px;
   background-clip: padding-box;
-  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.16), 0 1px 3px 0 rgba(0, 0, 0, 0.12);
   width: 100%;
   height: 100%;
   display: flex;
@@ -97,78 +81,51 @@
   background: white;
 }
 
-.card span.card-title {
-  color: #fff;
-  font-size: 24px;
-  font-weight: 300;
-  text-transform: uppercase;
-}
-
 .card .card-image {
   position: relative;
   overflow: hidden;
-  flex-shrink: 0;
+  flex: 1;
 }
 
 .card .card-image .header-front,
 .card .card-image .header-back {
   border-radius: 2px 2px 0 0;
   background-clip: padding-box;
-  position: relative;
-  z-index: -1;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 150px;
+  height: 100%;
 }
 
 .card .card-image span.card-title {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  padding: 16px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 8px;
+  font-weight: bold;
+  text-transform: uppercase;
+  text-align: center;
 }
 
 .card .card-content {
-  padding: 16px;
+  padding: 1px;
   border-radius: 0 0 2px 2px;
   background-clip: padding-box;
   box-sizing: border-box;
-  flex: 1;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 8px;
 }
 
 .card .card-content p {
   margin: 0;
-  color: inherit;
+  color: #666;
   text-align: center;
-  font-size: 18px;
-}
-
-.card .card-content span.card-title {
-  line-height: 48px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .container {
-    padding: 10px;
-  }
-  
-  .flipper {
-    height: 250px;
-  }
-  
-  .card .card-image .header-front,
-  .card .card-image .header-back {
-    height: 100px;
-  }
-  
-  .card span.card-title {
-    font-size: 20px;
-  }
-  
-  .card .card-content p {
-    font-size: 16px;
-  }
+  font-size: 6px;
+  line-height: 1;
 }

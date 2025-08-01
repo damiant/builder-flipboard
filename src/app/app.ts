@@ -1,12 +1,11 @@
 import { Component, signal, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { Row } from './row/row';
 import { Line, LineData } from './line/line';
 import { mockLineData } from './data/mock-line-data';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Row, Line],
+  imports: [RouterOutlet, Line],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
@@ -34,7 +33,7 @@ export class App implements OnInit, OnDestroy {
         (this.currentTextIndex + 1) % this.textOptions.length;
       this.rowText.set(this.textOptions[this.currentTextIndex]);
       this.loadGridFromMockData(this.currentTextIndex * this.grid.length, this.grid.length);
-    }, 5000);
+    }, 10000);
 
     // Start the timer to update current time every second
     this.updateCurrentTime(); // Set initial time
@@ -57,7 +56,7 @@ export class App implements OnInit, OnDestroy {
     const now = new Date();
     const timeString = now.toLocaleTimeString('en-US', {
       hour12: true,
-      hour: '2-digit',
+      hour: 'numeric',
       minute: '2-digit',
       second: '2-digit'
     });

@@ -48,10 +48,14 @@ export class Row implements AfterViewInit {
     }));
   }
   
+  private getRandomDelay(): number {
+    return Math.floor(Math.random() * (1350 - 50 + 1)) + 50;
+  }
+
   private handleTextChange(newText: string) {
     const newChars = newText.split('');
     const currentLength = this.characterStates.length;
-    
+
     // Handle length changes by recreating the entire state array
     if (newChars.length !== currentLength) {
       this.characterStates = newChars.map(char => ({
@@ -62,7 +66,7 @@ export class Row implements AfterViewInit {
       }));
       return;
     }
-    
+
     // For same length, prepare flip animations for changed characters
     newChars.forEach((newChar, index) => {
       const state = this.characterStates[index];
@@ -85,7 +89,7 @@ export class Row implements AfterViewInit {
         requestAnimationFrame(() => {
           setTimeout(() => {
             this.triggerFlip(index);
-          }, index * 10); // 10ms delay for each subsequent character
+          }, this.getRandomDelay()); // Call the random delay function
         });
       }
     });

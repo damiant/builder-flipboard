@@ -13,29 +13,19 @@ import { mockLineData } from './data/mock-line-data';
 export class App implements OnInit, OnDestroy {
   protected readonly title = signal('builder-flipboard');
   protected readonly rowText = signal('HELLO');
+  protected readonly currentTime = signal('');
   private intervalId?: number;
+  private timeIntervalId?: number;
   private textOptions = ['HELLO', 'BYE01'];
   private currentTextIndex = 0;
+  private rows = 20;
 
-  public lineData = signal<LineData>({
-    time: '06:00',
-    title: 'Morning Yoga',
-    location: 'Yoga Camp',
-    directions: '4:15&A',
-  });
-
-  public grid: LineData[] = [
-    { time: '', title: '', location: '', directions: '' },
-    { time: '', title: '', location: '', directions: '' },
-    { time: '', title: '', location: '', directions: '' },
-    { time: '', title: '', location: '', directions: '' },
-    { time: '', title: '', location: '', directions: '' },
-    { time: '', title: '', location: '', directions: '' },
-    { time: '', title: '', location: '', directions: '' },
-    { time: '', title: '', location: '', directions: '' },
-    { time: '', title: '', location: '', directions: '' },
-    { time: '', title: '', location: '', directions: '' }
-  ];
+  public grid: LineData[] = Array.from({ length: this.rows }, () => ({
+    time: '',
+    title: '',
+    location: '',
+    directions: ''
+  }));
   
   ngOnInit() {
     // Start the timer to change text every 5 seconds
@@ -43,27 +33,47 @@ export class App implements OnInit, OnDestroy {
       this.currentTextIndex =
         (this.currentTextIndex + 1) % this.textOptions.length;
       this.rowText.set(this.textOptions[this.currentTextIndex]);
-      this.loadGridFromMockData(this.currentTextIndex * this.grid.length);
+      this.loadGridFromMockData(this.currentTextIndex * this.grid.length, this.grid.length);
     }, 5000);
+
+    // Start the timer to update current time every second
+    this.updateCurrentTime(); // Set initial time
+    this.timeIntervalId = window.setInterval(() => {
+      this.updateCurrentTime();
+    }, 1000);
   }
 
   ngOnDestroy() {
-    // Clean up the interval when component is destroyed
+    // Clean up the intervals when component is destroyed
     if (this.intervalId) {
       window.clearInterval(this.intervalId);
     }
+    if (this.timeIntervalId) {
+      window.clearInterval(this.timeIntervalId);
+    }
+  }
+
+  private updateCurrentTime(): void {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', {
+      hour12: true,
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+    this.currentTime.set(timeString);
   }
 
   /**
    * Copies 10 elements from mockLineData starting at the specified index into the grid
    * @param startIndex - The index to start copying from (defaults to 0)
    */
-  public loadGridFromMockData(startIndex: number = 0): void {
+  public loadGridFromMockData(startIndex: number = 0, length: number): void {
     // Ensure we don't go out of bounds
-    const maxStartIndex = Math.max(0, mockLineData.length - 10);
+    const maxStartIndex = Math.max(0, mockLineData.length - length);
     const safeStartIndex = Math.min(startIndex, maxStartIndex);
 
     // Copy 10 elements starting from the safe index
-    this.grid = mockLineData.slice(safeStartIndex, safeStartIndex + 10);
+    this.grid = mockLineData.slice(safeStartIndex, safeStartIndex + length);
   }
 }

@@ -7,6 +7,21 @@
   padding: 20px;
 }
 
+/* Current time in top right corner */
+.current-time {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  color: white;
+  font-family: 'Raleway', sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 8px 12px;
+  border-radius: 4px;
+  z-index: 1000;
+}
+
 /* Additional spacing for the row component at the top */
 app-row {
   margin-bottom: 30px;
@@ -15,7 +30,6 @@ app-row {
 }
 
 h1 {
-  font-family: 'Raleway', sans-serif;
-  font-weight: bold;
   color: white;
+  font-family: 'Raleway', sans-serif;
 }

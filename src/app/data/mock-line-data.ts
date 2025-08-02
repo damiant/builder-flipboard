@@ -1,6 +1,6 @@
-import { LineData } from '../line/line';
+import { BoardEvent } from '../line/line';
 
-export const mockLineData: LineData[] = [
+export const mockLineData: BoardEvent[] = [
   { time: '06:00', title: 'Morning Yoga', location: 'Yoga Studio A', directions: '1:15&A' },
   { time: '06:30', title: 'Cardio Workout', location: 'Gym Floor 1', directions: '2:30&B' },
   { time: '07:00', title: 'Breakfast Buffet', location: 'Main Cafeteria', directions: '3:45&C' },

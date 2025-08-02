@@ -137,10 +137,21 @@ export class Row implements AfterViewInit {
     const originalText = this.text();
     const targetLength = this.length();
 
-    if (targetLength === undefined || originalText.length >= targetLength) {
+    if (targetLength === undefined) {
       return originalText;
     }
 
+    // If text is longer than target length, truncate it
+    if (originalText.length > targetLength) {
+      return originalText.substring(0, targetLength);
+    }
+
+    // If text is already the right length, return as is
+    if (originalText.length === targetLength) {
+      return originalText;
+    }
+
+    // If text is shorter, add padding
     const paddingLength = targetLength - originalText.length;
     const padding = ' '.repeat(paddingLength);
 

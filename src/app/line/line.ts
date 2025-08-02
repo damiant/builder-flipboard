@@ -1,11 +1,13 @@
 import { Component, input } from '@angular/core';
 import { Row } from '../row/row';
 
-export interface LineData {
+export interface BoardEvent {
   time: string;
   title: string;
   location: string;
   directions: string;
+  start?: Date;
+  end?: Date;
 }
 
 @Component({
@@ -15,10 +17,12 @@ export interface LineData {
   styleUrl: './line.css'
 })
 export class Line {
-  readonly data = input<LineData>({
+  readonly data = input<BoardEvent>({
     time: '',
     title: '',
     location: '',
-    directions: ''
+    directions: '',
+    start: new Date(),
+    end: new Date()
   });
 }

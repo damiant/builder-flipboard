@@ -2,12 +2,12 @@
   display: flex;
   flex-direction: row;
   gap:20px; 
-  margin: 5px 0;
+  margin: 2px 0;
 }
 
 .field-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 24px;
+  min-height: 20px;
 }

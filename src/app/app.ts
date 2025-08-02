@@ -19,7 +19,8 @@ export class App implements OnInit, OnDestroy {
   private updateIntervalId?: number;
   private textOptions = ['HELLO', 'BYE01'];
   private currentTextIndex = 0;
-  private rows = 20;
+  private rows = 14;
+  private busy = false;
   private data: BoardEvent[] = [];
 
   public grid: BoardEvent[] = Array.from({ length: this.rows }, () => ({
@@ -30,19 +31,17 @@ export class App implements OnInit, OnDestroy {
     start: new Date(),
     end: new Date()
   }));
-  
-  constructor(private dataService: DataService) {}
+
+  constructor(private dataService: DataService) { }
 
   async ngOnInit() {
     await this.dataService.load();
     this.getData();
     // Start the timer to change text every 5 seconds
     this.intervalId = window.setInterval(() => {
-      this.currentTextIndex =
-        (this.currentTextIndex + 1) % this.textOptions.length;
-      this.rowText.set(this.textOptions[this.currentTextIndex]);
-      this.loadGrid(this.currentTextIndex * this.grid.length, this.grid.length);
-    }, 10000);
+      this.flipScreen();
+    }, 20000);
+    this.flipScreen();
 
     this.updateIntervalId = window.setInterval(() => {
       this.getData();
@@ -55,8 +54,15 @@ export class App implements OnInit, OnDestroy {
     }, 1000);
   }
 
+  private flipScreen() {
+    this.currentTextIndex =
+      (this.currentTextIndex + 1) % this.textOptions.length;
+    this.rowText.set(this.textOptions[this.currentTextIndex]);
+    this.loadGrid(this.currentTextIndex * this.grid.length, this.grid.length);
+  }
+
   now(): Date {
-    return new Date(2025, 7,25,5,0,0)
+    return new Date(2025, 7, 25, 5, 0, 0)
     return new Date();
   }
 
@@ -86,6 +92,7 @@ export class App implements OnInit, OnDestroy {
   }
 
   private updateCurrentTime(): void {
+    if (this.busy) return;
     const now = new Date();
     const timeString = now.toLocaleTimeString('en-US', {
       hour12: true,
@@ -105,7 +112,11 @@ export class App implements OnInit, OnDestroy {
     this.grid = this.data.slice(safeStartIndex, safeStartIndex + length);
   }
 
-  onTimeClick() {
-    this.dataService.downloadData();
+  async onTimeClick() {
+    this.currentTime.set('Loading...');
+    this.busy = true;
+    await this.dataService.downloadData();
+    this.currentTime.set('Done');
+    this.busy = false;
   }
 }

@@ -32,4 +32,7 @@ app-row {
 h1 {
   color: white;
   font-family: 'Raleway', sans-serif;
+  padding: 0;
+  margin: 0;
+  margin-bottom: 5px;
 }

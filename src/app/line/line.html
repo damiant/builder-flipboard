@@ -1,6 +1,6 @@
 <div class="line-container">
   <div class="field-row">
-    <app-row [length]=5 [text]="data().time"></app-row>
+    <app-row [length]=5 [padLeft]="true" [text]="data().time"></app-row>
   </div>
   
   <div class="field-row">
@@ -8,7 +8,7 @@
   </div>
   
   <div class="field-row">
-    <app-row [length]="20" [text]="data().location"></app-row>
+    <app-row [length]="16" [text]="data().location"></app-row>
   </div>
   
   <div class="field-row">

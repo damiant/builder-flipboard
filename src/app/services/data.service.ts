@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Arts, Camps, Events } from './data.model';
 import { BoardEvent } from '../line/line';
 import { set, get, clear } from 'idb-keyval';
+import { CapacitorHttp } from '@capacitor/core';
 
 interface BoardLocation {
     name: string;
@@ -34,8 +35,13 @@ export class DataService {
                 const location = this.getLocation(event.located_at_art, event.hosted_by_camp, event.other_location, camps, arts);
 
                 for (const occurrence of event.occurrence_set) {
+                    const startDate = new Date(occurrence.start_time);
+                    const hours = startDate.getHours();
+                    const minutes = startDate.getMinutes();
+                    const formattedTime = `${hours}:${minutes.toString().padStart(2, '0')}`;
+                    
                     const boardEvent: BoardEvent = {
-                        time: occurrence.start_time,
+                        time: formattedTime,
                         title: event.title,
                         location: location.name,
                         directions: location.street,
@@ -67,7 +73,7 @@ export class DataService {
     }
 
     async get(url: string): Promise<any> {
-        const response = await fetch(url);
-        return await response.json();
+        const response = await CapacitorHttp.get({ url });
+        return await response.data;
     }
 }

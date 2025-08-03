@@ -7,14 +7,44 @@
   padding: 20px;
 }
 
+.cols {
+  color: white;
+  font-family: 'Raleway', sans-serif;
+  display: flex;
+  justify-content: center;
+  gap: 20rem;
+  width: 100%;  
+}
+p {
+  padding-bottom: 0.1rem;
+  margin: 0;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 0.8rem;
+}
 /* Current time in top right corner */
 .current-time {
   position: fixed;
   top: 20px;
-  right: 20px;
+  right: 10px;
   color: white;
   font-family: 'Raleway', sans-serif;
-  font-size: 18px;
+  font-size: 14px;
+  font-weight: 500;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 8px 12px;
+  border-radius: 4px;
+  z-index: 1000;
+}
+
+/* Pages in top left corner */
+.pages {
+  position: fixed;
+  top: 20px;
+  left: 10px;
+  color: white;
+  font-family: 'Raleway', sans-serif;
+  font-size: 14px;
   font-weight: 500;
   background: rgba(0, 0, 0, 0.7);
   padding: 8px 12px;

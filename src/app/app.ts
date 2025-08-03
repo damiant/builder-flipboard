@@ -14,6 +14,8 @@ export class App implements OnInit, OnDestroy {
   protected readonly title = signal('builder-flipboard');
   protected readonly rowText = signal('HELLO');
   protected readonly currentTime = signal('');
+  public pageNumber = signal(1);
+  public pages = signal(1);
   private intervalId?: number;
   private timeIntervalId?: number;
   private updateIntervalId?: number;
@@ -23,14 +25,18 @@ export class App implements OnInit, OnDestroy {
   private busy = false;
   private data: BoardEvent[] = [];
 
-  public grid: BoardEvent[] = Array.from({ length: this.rows }, () => ({
-    time: '',
-    title: '',
-    location: '',
-    directions: '',
-    start: new Date(),
-    end: new Date()
-  }));
+  public grid: BoardEvent[] = this.emptyGrid();
+
+  private emptyGrid(): BoardEvent[] {
+    return Array.from({ length: this.rows }, () => ({
+      time: '',
+      title: '',
+      location: '',
+      directions: '',
+      start: new Date(),
+      end: new Date()
+    }));
+  }
 
   constructor(private dataService: DataService) { }
 
@@ -58,11 +64,11 @@ export class App implements OnInit, OnDestroy {
     this.currentTextIndex =
       (this.currentTextIndex + 1) % this.textOptions.length;
     this.rowText.set(this.textOptions[this.currentTextIndex]);
-    this.loadGrid(this.currentTextIndex * this.grid.length, this.grid.length);
+    this.loadGrid(this.currentTextIndex * this.grid.length, this.rows);
   }
 
   now(): Date {
-    return new Date(2025, 7, 25, 5, 0, 0)
+    return new Date(2025, 7, 25, 7, 0, 0)
     return new Date();
   }
 
@@ -105,11 +111,21 @@ export class App implements OnInit, OnDestroy {
 
   public loadGrid(startIndex: number = 0, length: number): void {
     // Ensure we don't go out of bounds
-    const maxStartIndex = Math.max(0, this.data.length - length);
-    const safeStartIndex = Math.min(startIndex, maxStartIndex);
+    //const maxStartIndex = Math.max(0, this.data.length - length);
+    //const safeStartIndex = Math.min(startIndex, maxStartIndex);
+    this.pageNumber.set(Math.floor(startIndex / length) + 1);
+    this.pages.set(Math.ceil(this.data.length / length));
+    console.log(`pageNumber=${this.pageNumber()},  startIndex=${startIndex}, length=${length} count is ${this.data.length}`);
+
 
     // Copy 10 elements starting from the safe index
-    this.grid = this.data.slice(safeStartIndex, safeStartIndex + length);
+    this.grid = this.emptyGrid();
+
+    this.grid = this.emptyGrid();
+    const toCopy = this.data.slice(startIndex, startIndex + length);
+    for (let i = 0; i < toCopy.length; i++) {
+      this.grid[i] = toCopy[i];
+    }
   }
 
   async onTimeClick() {

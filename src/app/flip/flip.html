@@ -1,6 +1,6 @@
 <div class="flip-container" [style.width.px]="width()" [style.height.px]="height()">
     <div class="flipper" [class.flip]="isFlipped()">
-        <div class="front-card card" (click)="toggleFlip()">
+        <div class="front-card card">
             <div class="card-image">
                 <div class="header-front"><div class="edge"></div></div>                
                 @if (frontText()) {
@@ -8,7 +8,7 @@
                 }
             </div>
         </div>
-        <div class="back-card card" (click)="toggleFlip()">
+        <div class="back-card card">
             <div class="card-image">
                 <div class="header-back"><div class="edge"></div></div>
                 @if (backText()) {

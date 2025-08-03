@@ -19,7 +19,7 @@ export class DataService {
     async load() {
         const json = await get('boardEvents');
         if (json) {
-            this.data = JSON.parse(json);
+            this.data = json;
         } else {
             await this.downloadData();
         }
@@ -36,23 +36,29 @@ export class DataService {
 
                 for (const occurrence of event.occurrence_set) {
                     const startDate = new Date(occurrence.start_time);
-                    const hours = startDate.getHours();
-                    const minutes = startDate.getMinutes();
-                    const formattedTime = `${hours}:${minutes.toString().padStart(2, '0')}`;
+                    const endDate = new Date(occurrence.end_time);
+                    const durationHours = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60);
                     
-                    const boardEvent: BoardEvent = {
-                        time: formattedTime,
-                        title: event.title,
-                        location: location.name,
-                        directions: location.street,
-                        start: new Date(occurrence.start_time),
-                        end: new Date(occurrence.end_time)
-                    };
-                    result.push(boardEvent);
+                    if (durationHours <= 6) {
+                        const hours = startDate.getHours();
+                        const minutes = startDate.getMinutes();
+                        const formattedTime = `${hours}:${minutes.toString().padStart(2, '0')}`;
+                        
+                        const boardEvent: BoardEvent = {
+                            time: formattedTime,
+                            title: event.title,
+                            location: location.name,
+                            directions: location.street,
+                            start: new Date(occurrence.start_time),
+                            end: new Date(occurrence.end_time)
+                        };
+                        
+                        result.push(boardEvent);
+                    }
                 }
 
             }
-            await set('boardEvents', JSON.stringify(result));
+            await set('boardEvents', result);
 
         } catch (error) {
             console.error('Error downloading data:', error);

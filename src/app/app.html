@@ -1,7 +1,12 @@
 <div class="current-time" (click)="onTimeClick()">{{ currentTime() }}</div>
+<div class="pages">{{ pageNumber() }} of {{pages()}}</div>
 
 <div class="grid-container">
 <h1>Departures</h1>
+  <div class="cols">
+    <p>Event</p>
+    <p>Location</p>
+    </div>
   @for (item of grid; track $index) {
     <app-line [data]="item"></app-line>
   }

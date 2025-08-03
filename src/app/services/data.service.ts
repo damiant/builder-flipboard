@@ -17,7 +17,7 @@ export class DataService {
     constructor() { }
 
     async load() {
-        const json = await get('boardEvents');
+        const json = await get('boardEvents2');
         if (json) {
             this.data = json;
         } else {
@@ -58,7 +58,7 @@ export class DataService {
                 }
 
             }
-            await set('boardEvents', result);
+            await set('boardEvents2', result);
 
         } catch (error) {
             console.error('Error downloading data:', error);

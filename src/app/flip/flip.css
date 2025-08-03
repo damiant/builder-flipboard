@@ -87,7 +87,7 @@
   display: flex;
   flex-direction: column;
   background: white;
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Solari', sans-serif;
 }
 .card-image {
   background-color: rgba(0,0,0,1);
@@ -114,11 +114,11 @@
   left: 50%;
   transform: translate(-50%, -50%);
   color: #fff;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
   text-transform: uppercase;
   text-align: center;
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Solari', sans-serif;
 }
 
 .card .card-content {
@@ -137,5 +137,5 @@
   text-align: center;
   font-size: 10px;
   line-height: 1;
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Solari', sans-serif;
 }

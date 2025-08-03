@@ -49,7 +49,7 @@ export class Row implements AfterViewInit {
   }
   
   private getRandomDelay(): number {
-    return Math.floor(Math.random() * (1350 - 50 + 1)) + 50;
+    return Math.floor(Math.random() * (6400 - 50 + 1)) + 50;
   }
 
   private handleTextChange(newText: string) {

@@ -1,7 +1,7 @@
 import { Component, signal, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Line, BoardEvent } from './line/line';
-import { mockLineData } from './data/mock-line-data';
+import { NativeAudio } from '@capacitor-community/native-audio'
 import { DataService } from './services/data.service';
 
 @Component({
@@ -11,8 +11,6 @@ import { DataService } from './services/data.service';
   styleUrl: './app.css',
 })
 export class App implements OnInit, OnDestroy {
-  protected readonly title = signal('builder-flipboard');
-  protected readonly rowText = signal('HELLO');
   protected readonly currentTime = signal('');
   public pageNumber = signal(1);
   public pages = signal(1);
@@ -23,6 +21,7 @@ export class App implements OnInit, OnDestroy {
   private currentTextIndex = 0;
   private rows = 14;
   private busy = false;
+  public mock = false;
   private data: BoardEvent[] = [];
 
   public grid: BoardEvent[] = this.emptyGrid();
@@ -38,10 +37,21 @@ export class App implements OnInit, OnDestroy {
     }));
   }
 
+  public pageArray(length: number): number[] {
+    return Array.from({ length }, (_, i) => i + 1);
+  }
+
+
   constructor(private dataService: DataService) { }
 
   async ngOnInit() {
     await this.dataService.load();
+    NativeAudio.preload({
+      assetId: "flap",
+      assetPath: "flap.mp3",
+      audioChannelNum: 1,
+      isUrl: false
+    });
     this.getData();
     // Start the timer to change text every 5 seconds
     this.intervalId = window.setInterval(() => {
@@ -62,14 +72,27 @@ export class App implements OnInit, OnDestroy {
 
   private flipScreen() {
     this.currentTextIndex =
-      (this.currentTextIndex + 1) % this.textOptions.length;
-    this.rowText.set(this.textOptions[this.currentTextIndex]);
+      (this.currentTextIndex + 1) % this.textOptions.length;    
     this.loadGrid(this.currentTextIndex * this.grid.length, this.rows);
+
+    NativeAudio.play({
+      assetId: 'flap',
+      // time: 6.0 - seek time
+    });
   }
 
   now(): Date {
-    return new Date(2025, 7, 25, 7, 0, 0)
-    return new Date();
+    if (this.mock) {
+      return new Date(2025, 7, 25, 8, 0, 0)
+    } else {
+      return new Date();
+    }
+  }
+
+  toggleMock() {
+    this.mock = !this.mock;
+    this.getData();
+    this.flipScreen();
   }
 
   getData(): void {

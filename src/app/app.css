@@ -9,26 +9,27 @@
 
 .cols {
   color: white;
-  font-family: 'Raleway', sans-serif;
+  font-family: "Solari", sans-serif;
   display: flex;
   justify-content: center;
   gap: 20rem;
-  width: 100%;  
+  width: 100%;
 }
+
 p {
   padding-bottom: 0.1rem;
   margin: 0;
   text-transform: uppercase;
   font-weight: bold;
-  font-size: 0.8rem;
+  font-size: 0.5rem;
 }
 /* Current time in top right corner */
 .current-time {
   position: fixed;
-  top: 20px;
+  top: 16px;
   right: 10px;
   color: white;
-  font-family: 'Raleway', sans-serif;
+  font-family: "Solari", sans-serif;
   font-size: 14px;
   font-weight: 500;
   background: rgba(0, 0, 0, 0.7);
@@ -43,13 +44,17 @@ p {
   top: 20px;
   left: 10px;
   color: white;
-  font-family: 'Raleway', sans-serif;
+  font-family: "Solari", sans-serif;
   font-size: 14px;
   font-weight: 500;
   background: rgba(0, 0, 0, 0.7);
   padding: 8px 12px;
   border-radius: 4px;
   z-index: 1000;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Additional spacing for the row component at the top */
@@ -60,9 +65,31 @@ app-row {
 }
 
 h1 {
+  text-transform: uppercase;
   color: white;
-  font-family: 'Raleway', sans-serif;
+  font-family: "Solari", sans-serif;
   padding: 0;
   margin: 0;
-  margin-bottom: 5px;
+  margin-bottom: 2px;
+  font-size: 1.2rem;
+}
+
+.page-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #444; /* Gray color */
+  transition: background-color 0.2s ease;
+}
+
+.page-indicator.active {
+  background-color: #fff; /* White color for current page */
+}
+
+@font-face {
+  font-family: 'Solari';
+  src: url('/assets/fonts/solari.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
 }

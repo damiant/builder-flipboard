@@ -8,8 +8,10 @@
 <div class="grid-container">
 <h1 (click)="toggleMock()">{{ mock ? 'Test' : 'Departures'}}</h1>
   <div class="cols">
-    <p>Event</p>
-    <p>Location</p>
+    <p style="padding-left: 5%; width:15%">Time</p>
+    <p style="padding-left: 15%; width:50%">Event</p>
+    <p style="padding-left: 1%; width:35%">Location</p>
+    <p></p>
     </div>
   @for (item of grid; track $index) {
     <app-line [data]="item"></app-line>

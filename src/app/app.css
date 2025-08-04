@@ -12,7 +12,7 @@
   font-family: "Solari", sans-serif;
   display: flex;
   justify-content: center;
-  gap: 20rem;
+  gap: 0rem;
   width: 100%;
 }
 
@@ -52,9 +52,11 @@ p {
   border-radius: 4px;
   z-index: 1000;
   display: flex;
-  gap: 8px;
+  gap: 3px;
   align-items: center;
-  justify-content: center;
+  justify-content: start;
+  flex-wrap: wrap;
+  width: 150px;
 }
 
 /* Additional spacing for the row component at the top */
@@ -75,8 +77,8 @@ h1 {
 }
 
 .page-indicator {
-  width: 12px;
-  height: 12px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background-color: #444; /* Gray color */
   transition: background-color 0.2s ease;

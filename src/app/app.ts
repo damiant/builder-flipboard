@@ -17,7 +17,6 @@ export class App implements OnInit, OnDestroy {
   private intervalId?: number;
   private timeIntervalId?: number;
   private updateIntervalId?: number;
-  private textOptions = ['HELLO', 'BYE01'];
   private currentTextIndex = 0;
   private rows = 14;
   private busy = false;
@@ -71,8 +70,10 @@ export class App implements OnInit, OnDestroy {
   }
 
   private flipScreen() {
+    const max = Math.floor(this.data.length / this.rows) + 1;
+    console.log(`max=${max}, currentTextIndex=${this.currentTextIndex}`);
     this.currentTextIndex =
-      (this.currentTextIndex + 1) % this.textOptions.length;    
+      (this.currentTextIndex + 1) % max;
     this.loadGrid(this.currentTextIndex * this.grid.length, this.rows);
 
     NativeAudio.play({
@@ -81,9 +82,15 @@ export class App implements OnInit, OnDestroy {
     });
   }
 
+  private rnd(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  private mockTime: Date = new Date();
+
   now(): Date {
     if (this.mock) {
-      return new Date(2025, 7, 25, 8, 0, 0)
+      return this.mockTime;      
     } else {
       return new Date();
     }
@@ -91,6 +98,8 @@ export class App implements OnInit, OnDestroy {
 
   toggleMock() {
     this.mock = !this.mock;
+    this.mockTime = new Date(2025, 7, this.rnd(25, 31), this.rnd(1, 23), this.rnd(0,59), 0)
+    this.currentTextIndex = 0;
     this.getData();
     this.flipScreen();
   }
@@ -104,7 +113,6 @@ export class App implements OnInit, OnDestroy {
     });
     // Filter for events that are happening now
     this.data = data;
-    console.log('Filtered data:', this.data);
   }
 
   ngOnDestroy() {
@@ -122,7 +130,7 @@ export class App implements OnInit, OnDestroy {
 
   private updateCurrentTime(): void {
     if (this.busy) return;
-    const now = new Date();
+    const now = this.now();
     const timeString = now.toLocaleTimeString('en-US', {
       hour12: true,
       hour: 'numeric',
@@ -132,13 +140,13 @@ export class App implements OnInit, OnDestroy {
     this.currentTime.set(timeString);
   }
 
-  public loadGrid(startIndex: number = 0, length: number): void {
+  public loadGrid(startIndex: number = 0, length: number): void {    
     // Ensure we don't go out of bounds
     //const maxStartIndex = Math.max(0, this.data.length - length);
     //const safeStartIndex = Math.min(startIndex, maxStartIndex);
     this.pageNumber.set(Math.floor(startIndex / length) + 1);
     this.pages.set(Math.ceil(this.data.length / length));
-    console.log(`pageNumber=${this.pageNumber()},  startIndex=${startIndex}, length=${length} count is ${this.data.length}`);
+    console.log(`pageNumber=${this.pageNumber()}, pages=${this.pages()}  startIndex=${startIndex}, length=${length} count is ${this.data.length}`);
 
 
     // Copy 10 elements starting from the safe index
@@ -148,7 +156,35 @@ export class App implements OnInit, OnDestroy {
     const toCopy = this.data.slice(startIndex, startIndex + length);
     for (let i = 0; i < toCopy.length; i++) {
       this.grid[i] = toCopy[i];
+
+      toCopy[i].time = this.formatTime(toCopy[i].start ?? this.now(), toCopy[i].end ?? this.now());
     }
+  }
+
+  private formatTime(start: Date, end: Date): string {
+    const formatSingleTime = (date: Date): string => {
+      const hours = date.getHours();
+      const minutes = date.getMinutes();
+      const period = hours >= 12 ? 'pm' : 'am';
+      const displayHours = hours % 12 || 12;
+
+      if (minutes === 0) {
+        return `${displayHours}${period}`;
+      } else {
+        return `${displayHours}:${minutes.toString().padStart(2, '0')}${period}`;
+      }
+    };
+
+    const startTime = formatSingleTime(start);
+    const endTime = formatSingleTime(end);
+    const fullFormat = `${startTime.replace('am', '').replace('pm', '')}-${endTime}`;
+
+    // If the full format is longer than 5 characters, return just start time
+    if (fullFormat.length > 5) {
+      return startTime;
+    }
+
+    return fullFormat;
   }
 
   async onTimeClick() {

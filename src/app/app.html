@@ -1,26 +1,33 @@
 <div class="current-time" (click)="onTimeClick()">{{ currentTime() }}</div>
 <div class="pages">
   @for (page of pageArray(pages()); track $index) {
-    <div class="page-indicator" [class.active]="$index + 1 === pageNumber()"></div>
+  <div
+    class="page-indicator"
+    [class.active]="$index + 1 === pageNumber()"
+  ></div>
   }
 </div>
 
 <div class="grid-container">
-<h1 (click)="toggleMock()">{{ mock ? 'Departures [TEST]' : 'Departures'}}</h1>
+  <h1 (click)="toggleMock()">
+    {{ mock ? "Departures." : "Departures" }}
+  </h1>
   <div class="cols">
-    <p style="padding-left: 5%; width:15%">Status</p>
-    <p style="padding-left: 15%; width:50%">Flight</p>
-    <p style="padding-left: 1%; width:25%">Destination</p>
-    <p style="padding-left: 1%; width:10%">Gate</p>
+    <p style="padding-left: 5%; width: 15%">Status</p>
+    <p style="padding-left: 15%; width: 50%">Flight</p>
+    <p style="padding-left: 1%; width: 25%">Destination</p>
+    <p style="padding-left: 1%; width: 10%">Gate</p>
     <p></p>
-    </div>
+  </div>
   @for (item of grid; track $index) {
-    <app-line [data]="item"></app-line>
+  <app-line [data]="item"></app-line>
   }
+  <div class="crow">
+  <span>{{ announcing() }}&nbsp;</span>
 </div>
+</div>
+
 
 <router-outlet />
 
-<style>
-
-</style>
+<style></style>

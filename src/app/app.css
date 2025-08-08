@@ -5,7 +5,7 @@
   justify-content: center;
   min-height: 100vh;
   padding: 20px;
-  max-width: 800px; 
+
 }
 
 .cols {
@@ -23,6 +23,16 @@ p {
   text-transform: uppercase;
   font-weight: bold;
   font-size: 0.5rem;
+}
+.crow {
+  width: 100%;
+  text-align: center;;
+}
+span {
+  padding-top: 0.5rem;
+  font-size: 0.9rem;
+  color: rgb(176, 176, 176);
+  font-family: "Solari", sans-serif;
 }
 /* Current time in top right corner */
 .current-time {

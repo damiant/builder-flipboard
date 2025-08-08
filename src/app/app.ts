@@ -3,6 +3,11 @@ import { RouterOutlet } from '@angular/router';
 import { Line, BoardEvent } from './line/line';
 import { NativeAudio } from '@capacitor-community/native-audio';
 import { DataService } from './services/data.service';
+import { TextToSpeech } from '@capacitor-community/text-to-speech';
+import { KeepAwake } from '@capacitor-community/keep-awake';
+import { ScreenOrientation } from '@capacitor/screen-orientation';
+import { set } from 'idb-keyval';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-root',
@@ -14,13 +19,16 @@ export class App implements OnInit, OnDestroy {
   protected readonly currentTime = signal('');
   public pageNumber = signal(1);
   public pages = signal(1);
+  private voices: number[] = [];
   private intervalId?: number;
   private timeIntervalId?: number;
   private updateIntervalId?: number;
   private currentTextIndex = 0;
   private rows = 14;
   private busy = false;
+  private announceId?: number;
   public mock = false;
+  public announcing = signal('');
   private data: BoardEvent[] = [];
 
   public grid: BoardEvent[] = this.emptyGrid();
@@ -40,18 +48,33 @@ export class App implements OnInit, OnDestroy {
     return Array.from({ length }, (_, i) => i + 1);
   }
 
-  constructor(private dataService: DataService) {}
+  constructor(private dataService: DataService) { }
 
   async ngOnInit() {
     await this.dataService.load();
-    NativeAudio.preload({
-      assetId: 'flap',
-      assetPath: 'flap.mp3',
-      audioChannelNum: 1,
-      isUrl: false,
-    });
+    if (Capacitor.isNativePlatform()) {
+      NativeAudio.preload({
+        assetId: 'flap',
+        assetPath: 'flap.mp3',
+        audioChannelNum: 1,
+        volume: 0.5,
+        isUrl: false,
+      });
+      await KeepAwake.keepAwake();
+      await ScreenOrientation.lock({ orientation: 'landscape' });
+      const voices = await TextToSpeech.getSupportedVoices();
+      let i = 0;
+      for (const voice of voices.voices) {
+        if (voice.lang === 'en-AU') {
+          console.log(`Chosen Voice ${i}: ${JSON.stringify(voice)}`);
+          this.voices.push(i);
+        }
+        i++;
+        console.log(`Voice ${i}: ${JSON.stringify(voice)}`);
+      }
+    }
     this.getData();
-    // Start the timer to change text every 5 seconds
+    // Start the timer to change text every 20 seconds
     this.intervalId = window.setInterval(() => {
       this.flipScreen();
     }, 20000);
@@ -60,6 +83,7 @@ export class App implements OnInit, OnDestroy {
     this.updateIntervalId = window.setInterval(() => {
       this.getData();
     }, 60000);
+
 
     // Start the timer to update current time every second
     this.updateCurrentTime(); // Set initial time
@@ -71,13 +95,60 @@ export class App implements OnInit, OnDestroy {
   private flipScreen() {
     const max = Math.floor(this.data.length / this.rows) + 1;
     console.log(`max=${max}, currentTextIndex=${this.currentTextIndex}`);
+    const priorIndex = this.currentTextIndex;
     this.currentTextIndex = (this.currentTextIndex + 1) % max;
-    this.loadGrid(this.currentTextIndex * this.grid.length, this.rows);
+    const announce = this.loadGrid(this.currentTextIndex * this.grid.length, this.rows);
 
-    NativeAudio.play({
-      assetId: 'flap',
-      // time: 6.0 - seek time
+    if (priorIndex !== this.currentTextIndex) {
+      NativeAudio.play({
+        assetId: 'flap',
+        // time: 6.0 - seek time
+      });
+    }
+    setTimeout(() => {
+      // announce
+      if (this.rnd(0, 2) === 1) {
+        this.announce(announce);
+      }
+    }, this.rnd(500, 20000));
+  }
+
+  private async announce(event: BoardEvent) {
+    let dir = event.directions.replace('ESP&', 'Esplanade &').replace('CENTERCAMP', 'Center Camp');
+    const texts = [
+      `${event.title} is now departing from ${event.location} at ${dir}`,
+      `Attention passengers: This is the final boarding call for ${event.title} to ${event.location} at gate ${dir}.`,
+      `Now boarding ${event.title} to ${event.location}. Please proceed to gate ${dir} immediately.`,
+      `This is a reminder that ${event.location} is now boarding at ${dir} for ${event.title}.`,
+      `Passengers for ${event.title} to ${event.location}, please proceed to Gate ${dir}.`,
+      `Passengers for ${event.title}, please proceed to Gate ${dir} for immediate departure.`,
+      `Final call for all passengers of ${event.location} to ${event.title} — Gate ${dir}.`,
+      `We invite passengers requiring special assistance for ${event.title} to proceed to ${event.location} at gate ${dir}.`,
+      `${event.location} is now boarding at gate ${dir} for ${event.title}.`,
+      `Flight ${dir} to ${event.title} is now boarding all remaining passengers.`,
+      `Attention: ${event.title} at ${event.location} will begin boarding shortly at gate ${dir}.`,
+    ];
+    const text = texts[this.rnd(0, texts.length - 1)];
+    const voice = this.voices[this.rnd(0, this.voices.length - 1)];
+    TextToSpeech.speak({
+      text,
+      lang: 'en-US',
+      rate: 1.0,
+      pitch: 1.0,
+      volume: 1.0,
+      voice,
+      category: 'ambient',
+      queueStrategy: 1
     });
+    this.announcing.set(text);
+    if (this.announceId) {
+      clearTimeout(this.announceId);
+    }
+    this.announceId = setTimeout(() => {
+      this.announcing.set('');
+    }, 15000);
+
+
   }
 
   private rnd(min: number, max: number): number {
@@ -145,15 +216,14 @@ export class App implements OnInit, OnDestroy {
     this.currentTime.set(timeString);
   }
 
-  public loadGrid(startIndex: number = 0, length: number): void {
+  public loadGrid(startIndex: number = 0, length: number): BoardEvent {
     // Ensure we don't go out of bounds
     //const maxStartIndex = Math.max(0, this.data.length - length);
     //const safeStartIndex = Math.min(startIndex, maxStartIndex);
     this.pageNumber.set(Math.floor(startIndex / length) + 1);
     this.pages.set(Math.ceil(this.data.length / length));
     console.log(
-      `pageNumber=${this.pageNumber()}, pages=${this.pages()}  startIndex=${startIndex}, length=${length} count is ${
-        this.data.length
+      `pageNumber=${this.pageNumber()}, pages=${this.pages()}  startIndex=${startIndex}, length=${length} count is ${this.data.length
       }`
     );
 
@@ -170,6 +240,7 @@ export class App implements OnInit, OnDestroy {
         toCopy[i].end ?? this.now()
       );
     }
+    return toCopy[this.rnd(0, toCopy.length - 1)];
   }
 
   private formatTime(start: Date, end: Date): string {

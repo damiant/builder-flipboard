@@ -1,7 +1,7 @@
 import { Component, signal, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Line, BoardEvent } from './line/line';
-import { NativeAudio } from '@capacitor-community/native-audio'
+import { NativeAudio } from '@capacitor-community/native-audio';
 import { DataService } from './services/data.service';
 
 @Component({
@@ -32,7 +32,7 @@ export class App implements OnInit, OnDestroy {
       location: '',
       directions: '',
       start: new Date(),
-      end: new Date()
+      end: new Date(),
     }));
   }
 
@@ -40,16 +40,15 @@ export class App implements OnInit, OnDestroy {
     return Array.from({ length }, (_, i) => i + 1);
   }
 
-
-  constructor(private dataService: DataService) { }
+  constructor(private dataService: DataService) {}
 
   async ngOnInit() {
     await this.dataService.load();
     NativeAudio.preload({
-      assetId: "flap",
-      assetPath: "flap.mp3",
+      assetId: 'flap',
+      assetPath: 'flap.mp3',
       audioChannelNum: 1,
-      isUrl: false
+      isUrl: false,
     });
     this.getData();
     // Start the timer to change text every 5 seconds
@@ -72,8 +71,7 @@ export class App implements OnInit, OnDestroy {
   private flipScreen() {
     const max = Math.floor(this.data.length / this.rows) + 1;
     console.log(`max=${max}, currentTextIndex=${this.currentTextIndex}`);
-    this.currentTextIndex =
-      (this.currentTextIndex + 1) % max;
+    this.currentTextIndex = (this.currentTextIndex + 1) % max;
     this.loadGrid(this.currentTextIndex * this.grid.length, this.rows);
 
     NativeAudio.play({
@@ -90,7 +88,7 @@ export class App implements OnInit, OnDestroy {
 
   now(): Date {
     if (this.mock) {
-      return this.mockTime;      
+      return this.mockTime;
     } else {
       return new Date();
     }
@@ -98,14 +96,21 @@ export class App implements OnInit, OnDestroy {
 
   toggleMock() {
     this.mock = !this.mock;
-    this.mockTime = new Date(2025, 7, this.rnd(25, 31), this.rnd(1, 23), this.rnd(0,59), 0)
+    this.mockTime = new Date(
+      2025,
+      7,
+      this.rnd(25, 31),
+      this.rnd(1, 23),
+      this.rnd(0, 59),
+      0
+    );
     this.currentTextIndex = 0;
     this.getData();
     this.flipScreen();
   }
 
   getData(): void {
-    const data = this.dataService.data.filter(e => {
+    const data = this.dataService.data.filter((e) => {
       const now = this.now();
       const startTime = new Date(e.start ?? now);
       const endTime = new Date(e.end ?? now);
@@ -135,19 +140,22 @@ export class App implements OnInit, OnDestroy {
       hour12: true,
       hour: 'numeric',
       minute: '2-digit',
-      second: '2-digit'
+      second: '2-digit',
     });
     this.currentTime.set(timeString);
   }
 
-  public loadGrid(startIndex: number = 0, length: number): void {    
+  public loadGrid(startIndex: number = 0, length: number): void {
     // Ensure we don't go out of bounds
     //const maxStartIndex = Math.max(0, this.data.length - length);
     //const safeStartIndex = Math.min(startIndex, maxStartIndex);
     this.pageNumber.set(Math.floor(startIndex / length) + 1);
     this.pages.set(Math.ceil(this.data.length / length));
-    console.log(`pageNumber=${this.pageNumber()}, pages=${this.pages()}  startIndex=${startIndex}, length=${length} count is ${this.data.length}`);
-
+    console.log(
+      `pageNumber=${this.pageNumber()}, pages=${this.pages()}  startIndex=${startIndex}, length=${length} count is ${
+        this.data.length
+      }`
+    );
 
     // Copy 10 elements starting from the safe index
     this.grid = this.emptyGrid();
@@ -157,7 +165,10 @@ export class App implements OnInit, OnDestroy {
     for (let i = 0; i < toCopy.length; i++) {
       this.grid[i] = toCopy[i];
 
-      toCopy[i].time = this.formatTime(toCopy[i].start ?? this.now(), toCopy[i].end ?? this.now());
+      toCopy[i].time = this.formatStatus(
+        toCopy[i].start ?? this.now(),
+        toCopy[i].end ?? this.now()
+      );
     }
   }
 
@@ -171,13 +182,17 @@ export class App implements OnInit, OnDestroy {
       if (minutes === 0) {
         return `${displayHours}${period}`;
       } else {
-        return `${displayHours}:${minutes.toString().padStart(2, '0')}${period}`;
+        return `${displayHours}:${minutes
+          .toString()
+          .padStart(2, '0')}${period}`;
       }
     };
 
     const startTime = formatSingleTime(start);
     const endTime = formatSingleTime(end);
-    const fullFormat = `${startTime.replace('am', '').replace('pm', '')}-${endTime}`;
+    const fullFormat = `${startTime
+      .replace('am', '')
+      .replace('pm', '')}-${endTime}`;
 
     // If the full format is longer than 5 characters, return just start time
     if (fullFormat.length > 5) {
@@ -185,6 +200,20 @@ export class App implements OnInit, OnDestroy {
     }
 
     return fullFormat;
+  }
+
+  private formatStatus(start: Date, end: Date): string {
+    const now = this.now();
+
+    if (now > new Date(end.getTime() - 15 * 60 * 1000)) {
+      return 'CLOSING';
+    } else if (now < new Date(start.getTime() + 15 * 60 * 1000)) {
+      return 'OPEN';
+    } else if (now > start) {
+      return 'ON TIME';
+    }
+
+    return 'NOW';
   }
 
   async onTimeClick() {

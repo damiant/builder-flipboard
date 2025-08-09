@@ -1,13 +1,16 @@
 .line-container {
   display: flex;
   flex-direction: row;
-  gap:10px; 
+  gap:30px; 
   margin: 2px 0;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .field-row {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: start;
+  flex-direction: column;
+
   min-height: 16px;
 }

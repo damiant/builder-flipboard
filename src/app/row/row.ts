@@ -123,7 +123,7 @@ export class Row implements AfterViewInit, OnDestroy {
       const timeoutId = window.setTimeout(() => {
         this.pendingTimeouts.delete(timeoutId);
         this.triggerFlip(index);
-      }, (index * this.rnd(15,30)) + (this.changeId() * index * this.rnd(10,15) ));
+      }, (index * this.rnd(25,80)) + (this.changeId() * index * this.rnd(10,25) ));
       this.pendingTimeouts.add(timeoutId);
     });
 

@@ -1,5 +1,5 @@
 .row-container {
   display: flex;
-  gap: 1px;
+  gap: 4px;
   align-items: center;
 }

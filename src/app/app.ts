@@ -29,7 +29,7 @@ export class App implements OnInit, OnDestroy {
   private timeIntervalId?: number;
   private updateIntervalId?: number;
   private currentTextIndex = 0;
-  private rows = 24;
+  private rows = 8;
   private busy = false;
   private announceId?: number;
   public mock = false;
@@ -62,6 +62,13 @@ export class App implements OnInit, OnDestroy {
       NativeAudio.preload({
         assetId: 'flap',
         assetPath: 'flap.mp3',
+        audioChannelNum: 1,
+        volume: 0.5,
+        isUrl: false,
+      });
+      NativeAudio.preload({
+        assetId: 'flap2',
+        assetPath: 'flap2.mp3',
         audioChannelNum: 1,
         volume: 0.5,
         isUrl: false,
@@ -100,29 +107,23 @@ export class App implements OnInit, OnDestroy {
   }
 
   private flap() {
-    
-      NativeAudio.play({
-        assetId: 'flap',
-        // time: 6.0 - seek time
-      });
-    
+
+    NativeAudio.play({
+      assetId: (this.rnd(1, 2) == 1) ? 'flap' : 'flap2',
+      // time: 6.0 - seek time
+    });
+
   }
   private async flipScreen() {
     const max = Math.floor(this.data.length / this.rows) + 1;
-    console.log(`max=${max}, currentTextIndex=${this.currentTextIndex}`);
-    const priorIndex = this.currentTextIndex;
     this.currentTextIndex = (this.currentTextIndex + 1) % max;
     const announce = await this.loadGrid(this.currentTextIndex * this.grid.length, this.rows);
-    setTimeout(() => {
-      // announce
-      if (this.rnd(0, 2) === 1) {
-        this.announce(announce);
-      }
-    }, this.rnd(500, 20000));
+
   }
 
   private async announce(event: BoardEvent) {
-    let dir = event.directions.replace('ESP&', 'Esplanade &').replace('CENTERCAMP', 'Center Camp').replace("O'Clock",'');
+    if (!event.directions) return;
+    let dir = event.directions.replace('ESP&', 'Esplanade &').replace('CENTERCAMP', 'Center Camp').replace("O'Clock", '');
     const texts = [
       `${event.title} is now departing from ${event.location} at ${dir}`,
       `Attention passengers: This is the final boarding call for ${event.title} to ${event.location} at gate ${dir}.`,
@@ -131,7 +132,7 @@ export class App implements OnInit, OnDestroy {
       `Passengers for ${event.title} to ${event.location}, please proceed to Gate ${dir}.`,
       `Passengers for ${event.title}, please proceed to Gate ${dir} for immediate departure.`,
       `Final call for all passengers of ${event.location} to ${event.title} — Gate ${dir}.`,
-      `We invite passengers requiring special assistance for ${event.title} to proceed to ${event.location} at gate ${dir}.`,
+      `We invite passengers for ${event.title} to proceed to ${event.location} at gate ${dir}.`,
       `${event.location} is now boarding at gate ${dir} for ${event.title}.`,
       `Flight ${dir} to ${event.title} is now boarding all remaining passengers.`,
       `Attention: ${event.title} at ${event.location} will begin boarding shortly at gate ${dir}.`,
@@ -240,6 +241,7 @@ export class App implements OnInit, OnDestroy {
 
     const toCopy = this.data.slice(startIndex, startIndex + length);
     let c = 0;
+    let announced = false;
     for (let i = 0; i < toCopy.length; i++) {
       this.grid[i] = toCopy[i];
       toCopy[i].changeId = i;
@@ -247,17 +249,25 @@ export class App implements OnInit, OnDestroy {
         toCopy[i].start ?? this.now(),
         toCopy[i].end ?? this.now()
       );
-      c++;
-      if (c > 3) {
-        c = 0;
-        this.flap();
-        await delay(3000);
+      if (this.rnd(0, 3) === 1 && !announced) {
+        this.announceWithDelay(toCopy[i]);
+        announced = true;
       }
+      this.flap();
+      await delay(2000);
     }
     for (let i = toCopy.length + 1; i < this.rows; i++) {
       this.grid[i] = this.emptyGrid(1)[0];
     }
     return toCopy[this.rnd(0, toCopy.length - 1)];
+  }
+
+  private announceWithDelay(e: BoardEvent): void {
+    setTimeout(() => {
+      // announce
+      this.announce(e);
+
+    }, this.rnd(500, 10000));
   }
 
   private formatTime(start: Date, end: Date): string {

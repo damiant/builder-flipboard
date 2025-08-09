@@ -1,17 +1,17 @@
 <div class="line-container">
   <div class="field-row">
-    <app-row [length]=7 [padLeft]="true" [text]="data().time"></app-row>
+    <app-row [changeId]="data().changeId" [length]=7 [padLeft]="true" [text]="data().time"></app-row>
   </div>
   
   <div class="field-row">
-    <app-row [length]="20" [text]="data().title"></app-row>
+    <app-row [changeId]="data().changeId" [length]="20" [text]="data().title"></app-row>
   </div>
   
   <div class="field-row">
-    <app-row [length]="16" [text]="data().location"></app-row>
+    <app-row [changeId]="data().changeId" [length]="16" [text]="data().location"></app-row>
   </div>
   
   <div class="field-row">
-    <app-row [length]="8" [padLeft]="true" [text]="data().directions"></app-row>
+    <app-row [changeId]="data().changeId" [length]="8" [padLeft]="true" [text]="data().directions"></app-row>
   </div>
 </div>

@@ -1,4 +1,4 @@
-import { Component, input, ViewChildren, QueryList, AfterViewInit, effect, ChangeDetectorRef } from '@angular/core';
+import { Component, input, ViewChildren, QueryList, AfterViewInit, effect, ChangeDetectorRef, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Flip } from '../flip/flip';
 
 interface CharacterState {
@@ -12,18 +12,22 @@ interface CharacterState {
   selector: 'app-row',
   imports: [Flip],
   templateUrl: './row.html',
-  styleUrl: './row.css'
+  styleUrl: './row.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class Row implements AfterViewInit {
+export class Row implements AfterViewInit, OnDestroy {
   readonly text = input<string>('');
-  readonly length = input<number | undefined>(undefined); // total length with padding
-  readonly padLeft = input<boolean>(false); // true for left padding, false for right padding
+  readonly length = input<number | undefined>(undefined);
+  readonly padLeft = input<boolean>(false);
 
   @ViewChildren(Flip) flipComponents!: QueryList<Flip>;
-  
+
   protected characterStates: CharacterState[] = [];
   private previousText = '';
-  
+  readonly changeId = input<number>(0); // Used to track changes for batching
+  private pendingTimeouts = new Set<number>();
+  private animationFrameId?: number;
+
   constructor(private cdr: ChangeDetectorRef) {
     effect(() => {
       const newPaddedText = this.getPaddedText();
@@ -33,11 +37,20 @@ export class Row implements AfterViewInit {
       }
     });
   }
-  
+
   ngAfterViewInit() {
     this.initializeCharacterStates();
   }
-  
+
+  ngOnDestroy() {
+    // Clean up any pending timeouts and animation frames
+    this.pendingTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+    this.pendingTimeouts.clear();
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+    }
+  }
+
   private initializeCharacterStates() {
     const chars = this.getPaddedText().split('');
     this.characterStates = chars.map(char => ({
@@ -47,14 +60,21 @@ export class Row implements AfterViewInit {
       isAnimating: false
     }));
   }
-  
+
   private getRandomDelay(): number {
-    return Math.floor(Math.random() * (6400 - 50 + 1)) + 50;
+    return Math.floor(Math.random() * 6351) + 50; // More efficient than the original calculation
   }
 
   private handleTextChange(newText: string) {
     const newChars = newText.split('');
     const currentLength = this.characterStates.length;
+
+    // Cancel any pending animations
+    this.pendingTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+    this.pendingTimeouts.clear();
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+    }
 
     // Handle length changes by recreating the entire state array
     if (newChars.length !== currentLength) {
@@ -64,73 +84,103 @@ export class Row implements AfterViewInit {
         isFlipped: false,
         isAnimating: false
       }));
+      this.cdr.markForCheck(); // More efficient than detectChanges()
       return;
     }
 
-    // For same length, prepare flip animations for changed characters
+    // Batch character updates to minimize change detection cycles
+    let hasChanges = false;
+    const flipQueue: number[] = [];
+
     newChars.forEach((newChar, index) => {
       const state = this.characterStates[index];
       if (state && this.getDisplayedText(state) !== newChar && !state.isAnimating) {
         // Determine which side should get the new text based on current flip state
         if (state.isFlipped) {
-          // Currently showing back side, put new text on front side
           state.frontText = newChar;
         } else {
-          // Currently showing front side, put new text on back side
           state.backText = newChar;
         }
 
         state.isAnimating = true;
-
-        // Trigger change detection to ensure the new text is set before flip
-        this.cdr.detectChanges();
-
-        // Use requestAnimationFrame with a staggered delay based on character index
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            this.triggerFlip(index);
-          }, this.getRandomDelay()); // Call the random delay function
-        });
+        hasChanges = true;
+        flipQueue.push(index);
       }
     });
+
+    if (hasChanges) {
+      this.cdr.markForCheck();
+
+      // Use a single requestAnimationFrame for all flips
+      //this.animationFrameId = requestAnimationFrame(() => {
+      this.scheduleFlips(flipQueue);
+      //});
+    }
   }
-  
+
+  private scheduleFlips(indices: number[]) {
+    indices.forEach(index => {
+      const timeoutId = window.setTimeout(() => {
+        this.pendingTimeouts.delete(timeoutId);
+        this.triggerFlip(index);
+      }, (index * this.rnd(15,30)) + (this.changeId() * index * this.rnd(10,15) ));
+      this.pendingTimeouts.add(timeoutId);
+    });
+
+  }
+
+  private rnd(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
   private getDisplayedText(state: CharacterState): string {
     return state.isFlipped ? state.backText : state.frontText;
   }
-  
+
   private triggerFlip(index: number) {
     const state = this.characterStates[index];
     if (!state || !this.flipComponents) return;
-    
+
     const flipComponent = this.flipComponents.toArray()[index];
     if (flipComponent) {
       // Trigger the flip animation
       (flipComponent as any).toggleFlip();
-      
+
       // Update state to reflect the flip
       state.isFlipped = !state.isFlipped;
-      
-      // After animation completes, clean up the animation state
-      setTimeout(() => {
+
+      // Use more efficient cleanup
+      const timeoutId = window.setTimeout(() => {
+        this.pendingTimeouts.delete(timeoutId);
         state.isAnimating = false;
-        this.cdr.detectChanges();
-      }, 600); // Match the CSS animation duration
+        this.cdr.markForCheck(); // More efficient than detectChanges()
+      }, 600);
+
+      this.pendingTimeouts.add(timeoutId);
     }
   }
-  
+
   protected getCharacterData(index: number) {
     const state = this.characterStates[index];
     if (!state) return { frontText: '', backText: '' };
-    
+
     return {
       frontText: state.frontText,
       backText: state.backText
     };
   }
-  
+
+  // Memoize this getter to avoid recalculation on every change detection
+  private _cachedCharacters: string[] = [];
+  private _cachedPaddedText = '';
+
   protected get characters(): string[] {
-    return this.getPaddedText().split('');
+    const paddedText = this.getPaddedText();
+    if (paddedText !== this._cachedPaddedText) {
+      this._cachedPaddedText = paddedText;
+      this._cachedCharacters = paddedText.split('');
+    }
+    return this._cachedCharacters;
   }
 
   private getPaddedText(): string {

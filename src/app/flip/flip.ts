@@ -1,10 +1,11 @@
-import { Component, signal, input } from '@angular/core';
+import { Component, signal, input, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-flip',
   imports: [],
   templateUrl: './flip.html',
-  styleUrl: './flip.css'
+  styleUrl: './flip.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Flip {
   protected readonly isFlipped = signal(false);

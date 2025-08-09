@@ -51,7 +51,8 @@ export class DataService {
                             location: location.name,
                             directions: location.street,
                             start: new Date(occurrence.start_time),
-                            end: new Date(occurrence.end_time)
+                            end: new Date(occurrence.end_time),
+                            changeId: 0
                         };
 
                         result.push(boardEvent);

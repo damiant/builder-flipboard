@@ -9,6 +9,11 @@ import { ScreenOrientation } from '@capacitor/screen-orientation';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { Capacitor } from '@capacitor/core';
 
+// Add the delay function
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, Line],
@@ -41,6 +46,7 @@ export class App implements OnInit, OnDestroy {
       directions: '',
       start: new Date(),
       end: new Date(),
+      changeId: 0
     }));
   }
 
@@ -78,7 +84,7 @@ export class App implements OnInit, OnDestroy {
     // Start the timer to change text every 20 seconds
     this.intervalId = window.setInterval(() => {
       this.flipScreen();
-    }, 20000);
+    }, 30000);
     this.flipScreen();
 
     this.updateIntervalId = window.setInterval(() => {
@@ -93,19 +99,20 @@ export class App implements OnInit, OnDestroy {
     }, 1000);
   }
 
-  private flipScreen() {
-    const max = Math.floor(this.data.length / this.rows) + 1;
-    console.log(`max=${max}, currentTextIndex=${this.currentTextIndex}`);
-    const priorIndex = this.currentTextIndex;
-    this.currentTextIndex = (this.currentTextIndex + 1) % max;
-    const announce = this.loadGrid(this.currentTextIndex * this.grid.length, this.rows);
-
-    if (priorIndex !== this.currentTextIndex) {
+  private flap() {
+    
       NativeAudio.play({
         assetId: 'flap',
         // time: 6.0 - seek time
       });
-    }
+    
+  }
+  private async flipScreen() {
+    const max = Math.floor(this.data.length / this.rows) + 1;
+    console.log(`max=${max}, currentTextIndex=${this.currentTextIndex}`);
+    const priorIndex = this.currentTextIndex;
+    this.currentTextIndex = (this.currentTextIndex + 1) % max;
+    const announce = await this.loadGrid(this.currentTextIndex * this.grid.length, this.rows);
     setTimeout(() => {
       // announce
       if (this.rnd(0, 2) === 1) {
@@ -217,7 +224,7 @@ export class App implements OnInit, OnDestroy {
     this.currentTime.set(timeString);
   }
 
-  public loadGrid(startIndex: number = 0, length: number): BoardEvent {
+  public async loadGrid(startIndex: number = 0, length: number): Promise<BoardEvent> {
     // Ensure we don't go out of bounds
     //const maxStartIndex = Math.max(0, this.data.length - length);
     //const safeStartIndex = Math.min(startIndex, maxStartIndex);
@@ -231,15 +238,21 @@ export class App implements OnInit, OnDestroy {
     // Copy 10 elements starting from the safe index
     this.grid = this.emptyGrid();
 
-    this.grid = this.emptyGrid();
     const toCopy = this.data.slice(startIndex, startIndex + length);
+    let c = 0;
     for (let i = 0; i < toCopy.length; i++) {
       this.grid[i] = toCopy[i];
-
+      toCopy[i].changeId = i;
       toCopy[i].time = this.formatStatus(
         toCopy[i].start ?? this.now(),
         toCopy[i].end ?? this.now()
       );
+      c++;
+      if (c > 3) {
+        c = 0;
+        this.flap();
+        await delay(3000);
+      }
     }
     return toCopy[this.rnd(0, toCopy.length - 1)];
   }

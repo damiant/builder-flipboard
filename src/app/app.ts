@@ -36,10 +36,10 @@ export class App implements OnInit, OnDestroy {
   public announcing = signal('');
   private data: BoardEvent[] = [];
 
-  public grid: BoardEvent[] = this.emptyGrid();
+  public grid: BoardEvent[] = this.emptyGrid(this.rows);
 
-  private emptyGrid(): BoardEvent[] {
-    return Array.from({ length: this.rows }, () => ({
+  private emptyGrid(rows: number): BoardEvent[] {
+    return Array.from({ length: rows }, () => ({
       time: '',
       title: '',
       location: '',
@@ -122,7 +122,7 @@ export class App implements OnInit, OnDestroy {
   }
 
   private async announce(event: BoardEvent) {
-    let dir = event.directions.replace('ESP&', 'Esplanade &').replace('CENTERCAMP', 'Center Camp');
+    let dir = event.directions.replace('ESP&', 'Esplanade &').replace('CENTERCAMP', 'Center Camp').replace("O'Clock",'');
     const texts = [
       `${event.title} is now departing from ${event.location} at ${dir}`,
       `Attention passengers: This is the final boarding call for ${event.title} to ${event.location} at gate ${dir}.`,
@@ -236,7 +236,7 @@ export class App implements OnInit, OnDestroy {
     );
 
     // Copy 10 elements starting from the safe index
-    this.grid = this.emptyGrid();
+    //this.grid = this.emptyGrid(this.rows);
 
     const toCopy = this.data.slice(startIndex, startIndex + length);
     let c = 0;
@@ -253,6 +253,9 @@ export class App implements OnInit, OnDestroy {
         this.flap();
         await delay(3000);
       }
+    }
+    for (let i = toCopy.length + 1; i < this.rows; i++) {
+      this.grid[i] = this.emptyGrid(1)[0];
     }
     return toCopy[this.rnd(0, toCopy.length - 1)];
   }

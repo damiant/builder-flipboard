@@ -51,9 +51,6 @@ span {
 
 /* Pages in top left corner */
 .pages {
-  position: fixed;
-  top: 20px;
-  left: 10px;
   color: white;
   font-family: "Solari", sans-serif;
   font-size: 14px;
@@ -61,11 +58,10 @@ span {
   background: rgba(0, 0, 0, 0.7);
   padding: 8px 12px;
   border-radius: 4px;
-  z-index: 1000;
   display: flex;
   gap: 3px;
   align-items: center;
-  justify-content: start;
+  justify-content: center;
   flex-wrap: wrap;
   width: 150px;
 }

@@ -6,7 +6,7 @@ import { DataService } from './services/data.service';
 import { TextToSpeech } from '@capacitor-community/text-to-speech';
 import { KeepAwake } from '@capacitor-community/keep-awake';
 import { ScreenOrientation } from '@capacitor/screen-orientation';
-import { set } from 'idb-keyval';
+import { StatusBar, Style } from '@capacitor/status-bar';
 import { Capacitor } from '@capacitor/core';
 
 @Component({
@@ -24,7 +24,7 @@ export class App implements OnInit, OnDestroy {
   private timeIntervalId?: number;
   private updateIntervalId?: number;
   private currentTextIndex = 0;
-  private rows = 14;
+  private rows = 24;
   private busy = false;
   private announceId?: number;
   public mock = false;
@@ -60,6 +60,7 @@ export class App implements OnInit, OnDestroy {
         volume: 0.5,
         isUrl: false,
       });
+      await StatusBar.hide();
       await KeepAwake.keepAwake();
       await ScreenOrientation.lock({ orientation: 'landscape' });
       const voices = await TextToSpeech.getSupportedVoices();

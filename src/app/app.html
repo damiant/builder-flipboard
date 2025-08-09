@@ -1,12 +1,5 @@
 <div class="current-time" (click)="onTimeClick()">{{ currentTime() }}</div>
-<div class="pages">
-  @for (page of pageArray(pages()); track $index) {
-  <div
-    class="page-indicator"
-    [class.active]="$index + 1 === pageNumber()"
-  ></div>
-  }
-</div>
+
 
 <div class="grid-container">
   <h1 (click)="toggleMock()">
@@ -22,6 +15,14 @@
   @for (item of grid; track $index) {
   <app-line [data]="item"></app-line>
   }
+  <div class="pages">
+  @for (page of pageArray(pages()); track $index) {
+  <div
+    class="page-indicator"
+    [class.active]="$index + 1 === pageNumber()"
+  ></div>
+  }
+</div>
   <div class="crow">
   <span>{{ announcing() }}&nbsp;</span>
 </div>
